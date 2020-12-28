@@ -1114,6 +1114,24 @@ extern const HAPUUID kHAPServiceType_Microphone;
 extern const HAPUUID kHAPServiceType_Speaker;
 /**@}*/
 
+/**@{*/
+#define kHAPServiceDebugDescription_CameraOperatingMode "camera-operating-mode"
+
+extern const HAPUUID kHAPServiceType_CameraOperatingMode;
+/**@}*/
+
+/**@{*/
+#define kHAPServiceDebugDescription_CameraRecordingManagement "camera-recording-management"
+
+extern const HAPUUID kHAPServiceType_CameraRecordingManagement;
+/**@}*/
+
+/**@{*/
+#define kHAPServiceDebugDescription_DataStreamTransportManagement "data-stream-transport-management"
+
+extern const HAPUUID kHAPServiceType_DataStreamTransportManagement;
+/**@}*/
+
 #if __has_feature(nullability)
 #pragma clang assume_nonnull end
 #endif

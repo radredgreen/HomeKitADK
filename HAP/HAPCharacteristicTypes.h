@@ -3315,6 +3315,223 @@ extern const HAPUUID kHAPCharacteristicType_Mute;
 /**@}*/
 
 /**
+ * Camera Operating Mode.
+ *TODO - Update this from docs
+ * - Format: Bool 0 - Harware LED is disabled, 1 - Hardware LED is enabled
+ * - Permissions: Paired Read, Paired Write, Notify, Timed Write
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_CameraOperatingModeIndicator "camera-operating-mode-indicator"
+extern const HAPUUID kHAPCharacteristicType_CameraOperatingModeIndicator;
+/**@}*/
+
+/**
+ * Event Snapshots Active.
+ *TODO - Update this from docs
+ * - Format: Bool 0 - Snapshots in notifications are turned off, 1 - snapshots on
+ * - Permissions: Paired Read, Paired Write, Notify, Timed Write
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_EventSnapshotsActive "event-snapshots-active"
+extern const HAPUUID kHAPCharacteristicType_EventSnapshotsActive;
+/**@}*/
+
+/**
+ * HomeKit Camera Active.
+ *TODO - Update this from docs
+ * - Format: Bool, 0 - Activity detection should not be enabled, 1 - should be
+ * - Permissions: Paired Read, Paired Write, Notify, Timed Write
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_HomeKitCameraActive "homekit-camera-active"
+extern const HAPUUID kHAPCharacteristicType_HomeKitCameraActive;
+/**@}*/
+
+/**
+ * Manually Disabled.
+ *TODO - Update this from docs
+ * - Format: Bool, 0 - camera is not manually disabled, 1 - disabled
+ * - Permissions: Paired Read, Notify
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_ManuallyDisabled "manually-disabled"
+extern const HAPUUID kHAPCharacteristicType_ManuallyDisabled;
+/**@}*/
+
+/**
+ * Night Vision.
+ *TODO - Update this from docs
+ * - Format: Bool, 0 - disable night vision, 1 - enable
+ * - Permissions: Paired Read, Paired Write, Notify
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_NightVision "night-vision"
+extern const HAPUUID kHAPCharacteristicType_NightVision;
+/**@}*/
+
+/**
+ * Periodic Snapshots Active.
+ *TODO - Update this from docs
+ * - Format: Bool
+ * - Permissions: Paired Read, Paired Write, Notify, Timed Write
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_PeriodicSnapshotsActive "periodic-snapshots-active"
+extern const HAPUUID kHAPCharacteristicType_PeriodicSnapshotsActive;
+/**@}*/
+
+/**
+ * Recording Audio Active.
+ *TODO - Update this from docs
+ * - Format: Uint8
+ * - Permissions: Paired Read, Paired Write, Notify, Timed Write
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_RecordingAudioActive "recording-audio-active"
+extern const HAPUUID kHAPCharacteristicType_RecordingAudioActive;
+HAP_ENUM_BEGIN(uint8_t, HAPCharacteristicValue_RecordingAudioActive) {
+    /** Include Audio in recordings. */
+    kHAPCharacteristicValue_RecordingAudioActive_Include = 0,
+
+    /** Exclude Audio from recordings. */
+    kHAPCharacteristicValue_RecordingAudioActive_Exclude = 1
+} HAP_ENUM_END(uint8_t, HAPCharacteristicValue_RecordingAudioActive);
+/**@}*/
+
+/**
+ * Supported Camera Recording Configuration.
+ *TODO - Update this from docs
+ * - Format: TLV8
+ * - Permissions: Paired Read, Notify
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_SupportedCameraRecordingConfiguration "supported-camera-recording-configuration"
+extern const HAPUUID kHAPCharacteristicType_SupportedCameraRecordingConfiguration;
+/**@}*/
+
+/**
+ * Supported Video Recording Configuration.
+ *TODO - Update this from docs
+ * - Format: TLV8
+ * - Permissions: Paired Read, Notify
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_SupportedVideoRecordingConfiguration "supported-video-recording-configuration"
+extern const HAPUUID kHAPCharacteristicType_SupportedVideoRecordingConfiguration;
+/**@}*/
+
+/**
+ * Supported Audio Recording Audio Configuration.
+ *TODO - Update this from docs
+ * - Format: TLV8
+ * - Permissions: Paired Read, Notify
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_SupportedAudioRecordingConfiguration "supported-audio-recording-configuration"
+extern const HAPUUID kHAPCharacteristicType_SupportedAudioRecordingConfiguration;
+/**@}*/
+
+/**
+ * Selected Camera Recording Configuration.
+ *TODO - Update this from docs
+ * - Format: TLV8
+ * - Permissions: Paired Read, Paired Write, Notify
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_SelectedCameraRecordingConfiguration "selected-camera-recording-configuration"
+extern const HAPUUID kHAPCharacteristicType_SelectedCameraRecordingConfiguration;
+/**@}*/
+
+/**
+ * Third Party Camera Active.
+ *TODO - Update this from docs
+ * - Format: Bool
+ * - Permissions: Paired Read, Notify
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_ThirdPartyCameraActive "third-party-camera-active"
+extern const HAPUUID kHAPCharacteristicType_ThirdPartyCameraActive;
+/**@}*/
+
+/**
+ * Supported Data Stream Transport Configuration.
+ *TODO - Update this from docs
+ * - Format: TLV8
+ * - Permissions: Paired Read
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_SupportedDataStreamTransportConfiguration "supported-data-stream-transport-configuration"
+extern const HAPUUID kHAPCharacteristicType_SupportedDataStreamTransportConfiguration;
+/**@}*/
+
+/**
+ * Setup Data Stream Transport.
+ *TODO - Update this from docs
+ * - Format: TLV8
+ * - Permissions: Paired Read, Paired Write, Write Response
+ *
+ * TODO - Refer to doc for details of TLV's.
+ * @see HomeKit Accessory Protocol Specification R14
+ *      Section 9.92 Setup Endpoints
+ */
+/**@{*/
+#define kHAPCharacteristicDebugDescription_SetupDataStreamTransport "setup-data-stream-transport"
+extern const HAPUUID kHAPCharacteristicType_SetupDataStreamTransport;
+/**@}*/
+
+/**
  * ADK Version.
  *
  * This characteristic describes a ADK version string x[.y[.z]];b (e.g. "100.1.1;1A1").

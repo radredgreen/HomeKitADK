@@ -270,6 +270,28 @@ const HAPUUID kHAPCharacteristicType_SetupDataStreamTransport = HAPUUIDCreateApp
 
 const HAPUUID kHAPCharacteristicType_SiriInputType = HAPUUIDCreateAppleDefined(0x132);
 
+const HAPUUID kHAPCharacteristicType_CameraOperatingModeIndicator = HAPUUIDCreateAppleDefined(0x21D);
+
+const HAPUUID kHAPCharacteristicType_EventSnapshotsActive = HAPUUIDCreateAppleDefined(0x223);
+
+const HAPUUID kHAPCharacteristicType_HomeKitCameraActive = HAPUUIDCreateAppleDefined(0x21B);
+
+const HAPUUID kHAPCharacteristicType_ManuallyDisabled = HAPUUIDCreateAppleDefined(0x21B); //TODO - typo with HomeKitCameraActive
+
+const HAPUUID kHAPCharacteristicType_PeriodicSnapshotsActive = HAPUUIDCreateAppleDefined(0x225);
+
+const HAPUUID kHAPCharacteristicType_RecordingAudioActive = HAPUUIDCreateAppleDefined(0x226);
+
+const HAPUUID kHAPCharacteristicType_SupportedCameraRecordingConfiguration = HAPUUIDCreateAppleDefined(0x204);
+
+const HAPUUID kHAPCharacteristicType_SupportedVideoRecordingConfiguration = HAPUUIDCreateAppleDefined(0x206);
+
+const HAPUUID kHAPCharacteristicType_SupportedAudioRecordingConfiguration = HAPUUIDCreateAppleDefined(0x207);
+
+const HAPUUID kHAPCharacteristicType_SelectedCameraRecordingConfiguration = HAPUUIDCreateAppleDefined(0x209);
+
+const HAPUUID kHAPCharacteristicType_ThirdPartyCameraActive = HAPUUIDCreateAppleDefined(0x21C);
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 34AB8811-AC7F-4340-BAC3-FD6A85F9943B
