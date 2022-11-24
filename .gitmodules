@@ -1,0 +1,3 @@
+[submodule "Applications/Camera"]
+	path = Applications/Camera
+	url = git@github.com:joebelford/homekit_camera.git
