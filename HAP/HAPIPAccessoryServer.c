@@ -9,6 +9,15 @@
 #if HAP_IP
 
 #include "util_base64.h"
+#include "util_json_reader.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/stat.h> 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <x86_64-linux-gnu/bits/fcntl-linux.h>
 
 static const HAPLogObject logObject = { .subsystem = kHAP_LogSubsystem, .category = "IPAccessoryServer" };
 
@@ -144,6 +153,25 @@ static const HAPLogObject logObject = { .subsystem = kHAP_LogSubsystem, .categor
  * Maximum delay during which event notifications will be coalesced into a single message.
  */
 #define kHAPIPAccessoryServer_MaxEventNotificationDelay ((HAPTime)(1 * HAPSecond))
+
+HAP_RESULT_USE_CHECK
+static size_t try_read_uint(const char* buffer, size_t length, unsigned int* r) {
+    size_t k;
+    HAPAssert(buffer != NULL);
+    HAPAssert(r != NULL);
+    *r = 0;
+    k = 0;
+    HAPAssert(k <= length);
+    while ((k < length) && ('0' <= buffer[k]) && (buffer[k] <= '9') &&
+           (*r <= (UINT_MAX - (unsigned int) (buffer[k] - '0')) / 10)) {
+        *r = *r * 10 + (unsigned int) (buffer[k] - '0');
+        k++;
+    }
+    HAPAssert(
+            (k == length) || ((k < length) && ((buffer[k] < '0') || (buffer[k] > '9') ||
+                                               (*r > (UINT_MAX - (unsigned int) (buffer[k] - '0')) / 10))));
+    return k;
+}
 
 static void log_result(HAPLogType type, char* msg, int result, const char* function, const char* file, int line) {
     HAPAssert(msg);
@@ -564,7 +592,189 @@ static void prepare_reading_request(HAPIPSessionDescriptor* session) {
 
 static void handle_input(HAPIPSessionDescriptor* session);
 
-static void post_resource(HAPIPSessionDescriptor* session HAP_UNUSED) {
+static void post_resource(HAPIPSessionDescriptor* session) {
+
+    if (!session->httpContentLength.isDefined ||
+        !(session->httpContentType == kHAPIPAccessoryServerContentType_Application_HAPJSON)) {
+        HAPLogError(&logObject, "Not a valid post");
+        return;
+    }
+    char bytes[session->httpContentLength.value];
+    HAPRawBufferCopyBytes(
+            bytes, &session->inboundBuffer.data[session->httpReaderPosition], session->httpContentLength.value);
+    HAPError err;
+    size_t i, j, k, n;
+    unsigned int image_width, image_height, x;
+    struct util_json_reader json_reader;
+    util_json_reader_init(&json_reader);
+    size_t numBytes = sizeof(bytes);
+    bool hasImageWidth = false, hasImageHeight = false;
+    k = util_json_reader_read(&json_reader, bytes, numBytes);
+    if (json_reader.state != util_JSON_READER_STATE_BEGINNING_OBJECT) {
+        HAPLogError(&logObject, "\n\nJSON not begginning object");
+    }
+    HAPAssert(k <= numBytes);
+    do {
+        k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+        if (json_reader.state != util_JSON_READER_STATE_BEGINNING_STRING) {
+            HAPLogError(&logObject, "\n\nJSON not begginning string");
+        }
+        HAPAssert(k <= numBytes);
+        i = k;
+        k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+        if (json_reader.state != util_JSON_READER_STATE_COMPLETED_STRING) {
+            HAPLogError(&logObject, "\n\nJSON not completed string");
+        }
+        HAPAssert(k <= numBytes);
+        j = k;
+        k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+        if (json_reader.state != util_JSON_READER_STATE_AFTER_NAME_SEPARATOR) {
+            HAPLogError(&logObject, "\n\nJSON not after name seperator");
+        }
+        HAPAssert(i <= j);
+        HAPAssert(j <= k);
+        HAPAssert(k <= numBytes);
+        if ((j - i == 13) && HAPRawBufferAreEqual(&bytes[i], "\"image-width\"", 13)) {
+            k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+            if (json_reader.state == util_JSON_READER_STATE_BEGINNING_NUMBER) {
+                HAPAssert(k <= numBytes);
+                i = k;
+                k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+                if (json_reader.state != util_JSON_READER_STATE_COMPLETED_NUMBER) {
+                    HAPLogError(&logObject, "\n\nJSON not completed number\n\n");
+                }
+                HAPAssert(i <= k);
+                HAPAssert(k <= numBytes);
+                n = try_read_uint(&bytes[i], k - i, &x);
+                // TODO
+                // See HomeKit Accessory Protocol Specification R14
+                // Table 6-3 Properties of Characteristic Objects in JSON
+                if ((n == k - i) && (x <= 4096)) {
+                    image_width = x;
+                    hasImageWidth = true;
+                } else {
+                    HAPLogError(&logObject, "Invalid Image Width requested.");
+                }
+            } else {
+                HAPLogError(&logObject, "\n\nJSON not begginning of number");
+            }
+        } else if ((j - i == 14) && HAPRawBufferAreEqual(&bytes[i], "\"image-height\"", 14)) {
+            k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+            if (json_reader.state == util_JSON_READER_STATE_BEGINNING_NUMBER) {
+                HAPAssert(k <= numBytes);
+                i = k;
+                k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+                if (json_reader.state != util_JSON_READER_STATE_COMPLETED_NUMBER) {
+                    HAPLogError(&logObject, "Not height completed number.");
+                }
+                HAPAssert(i <= k);
+                HAPAssert(k <= numBytes);
+                n = try_read_uint(&bytes[i], k - i, &x);
+                // TODO
+                // See HomeKit Accessory Protocol Specification R14
+                // Table 6-3 Properties of Characteristic Objects in JSON
+                if (n == k - i) {
+                    image_height = x;
+                    hasImageHeight = true;
+                } else {
+                    HAPLogError(&logObject, &bytes[i], k - i, "Invalid Height requested.");
+                }
+            } else {
+                HAPLogError(&logObject, "\n\nIs this where we're getting lost?\n\n");
+            }
+        } else { // TODO - Handle resource-type key as well
+            size_t skippedBytes;
+            err = HAPJSONUtilsSkipValue(&json_reader, &bytes[k], numBytes - k, &skippedBytes);
+            if (err) {
+                HAPAssert((err == kHAPError_InvalidData) || (err == kHAPError_OutOfResources));
+                HAPLogError(&logObject, "\n\nJSON Invalid Data or Out of Resources");
+            }
+            k += skippedBytes;
+        }
+        HAPAssert(k <= numBytes);
+        k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+    } while ((k < numBytes) && (json_reader.state == util_JSON_READER_STATE_AFTER_VALUE_SEPARATOR));
+    HAPAssert(
+            (k == numBytes) || ((k < numBytes) && (json_reader.state != util_JSON_READER_STATE_AFTER_VALUE_SEPARATOR)));
+    if (json_reader.state != util_JSON_READER_STATE_COMPLETED_OBJECT) {
+        HAPLogError(&logObject, "\n\nJSON not completed object\n\n");
+    }
+    k += util_json_reader_read(&json_reader, &bytes[k], numBytes - k);
+    if (k < numBytes) {
+        HAPLogError(&logObject, "\n\nk less than numBytes\n\n");
+    } else {
+        HAPAssert(k == numBytes);
+        HAPAssert(
+                (json_reader.state == util_JSON_READER_STATE_COMPLETED_OBJECT) ||
+                (json_reader.state == util_JSON_READER_STATE_READING_WHITESPACE));
+    }
+    if (!hasImageWidth || !hasImageHeight) {
+        HAPLogError(&logObject, "Missing Image dimension.");
+    }
+    HAPLogInfo(&logObject, "Requested Image Width: %d", image_width);
+    HAPLogInfo(&logObject, "Requested Image Height: %d", image_height);
+
+    struct stat fileStats;
+    char* fileName = ".vscode/output_half.jpg";
+    int fd;
+    fd = open(fileName, O_RDONLY);
+    stat(fileName, &fileStats);
+    char jpegFile[fileStats.st_size];
+    read(fd, jpegFile, fileStats.st_size);
+    close(fd);
+
+    err = HAPIPByteBufferAppendStringWithFormat(
+            &session->outboundBuffer,
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: image/jpeg\r\n"
+            "Content-Length: %lu\r\n\r\n",
+            (unsigned long) fileStats.st_size);
+
+
+// expand HAPIP+ByteBuffer.c and move this stuff there
+
+    HAPRawBufferCopyBytes(&session->outboundBuffer.data[session->outboundBuffer.position], jpegFile, sizeof(jpegFile));
+    session->outboundBuffer.position += sizeof(jpegFile);
+
+    HAPLogInfo(&logObject, "Successful %s.\n\n", __func__);
+
+    /*
+        char httpHeader[70];
+        snprintf(httpHeader, sizeof(httpHeader),
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: image/jpeg\r\n"
+        "Content-Length: %ld\r\n\r\n", fileStats.st_size);
+     */
+
+    /*
+        HAPLogInfo(&logObject, "\n\nHTTP Header %s", httpHeader);
+        size_t headerLength = strlen(httpHeader);
+        HAPLogInfo(&logObject, "HTTP Header length: %lu\n\n", headerLength);
+     */
+    // char payload[headerLength + fileStats.st_size + 1];
+
+    // memcpy(payload, httpHeader, headerLength + 1);
+    // memcpy(payload + headerLength + 1, jpegFile, fileStats.st_size);
+
+    // write_msg(&session->outboundBuffer, payload);
+    /*
+        write_msg(&session->outboundBuffer, httpHeader);
+        write_msg(&session->outboundBuffer, jpegFile);
+     */
+
+    // message 63 chars not counting digits and \0.
+    /*     write_msg(&session->outboundBuffer,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: image/jpeg\r\n"
+                "Content-Length: 12\r\n\r\n") */
+    /*
+                write_msg(
+                        &session->outboundBuffer,
+                        "HTTP/1.1 200 OK\r\n"
+                        "Content-Type: application/hap+json\r\n"
+                        "Content-Length: 12\r\n\r\n"
+                        "{\"status\":0}");
+    */
 }
 
 static void put_prepare(HAPIPSessionDescriptor* session) {
