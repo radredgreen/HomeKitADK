@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <x86_64-linux-gnu/bits/fcntl-linux.h>
@@ -730,8 +730,7 @@ static void post_resource(HAPIPSessionDescriptor* session) {
             "Content-Length: %lu\r\n\r\n",
             (unsigned long) fileStats.st_size);
 
-
-// expand HAPIP+ByteBuffer.c and move this stuff there
+    // expand HAPIP+ByteBuffer.c and move this stuff there
 
     HAPRawBufferCopyBytes(&session->outboundBuffer.data[session->outboundBuffer.position], jpegFile, sizeof(jpegFile));
     session->outboundBuffer.position += sizeof(jpegFile);

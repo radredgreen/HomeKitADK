@@ -276,7 +276,8 @@ const HAPUUID kHAPCharacteristicType_EventSnapshotsActive = HAPUUIDCreateAppleDe
 
 const HAPUUID kHAPCharacteristicType_HomeKitCameraActive = HAPUUIDCreateAppleDefined(0x21B);
 
-const HAPUUID kHAPCharacteristicType_ManuallyDisabled = HAPUUIDCreateAppleDefined(0x21B); //TODO - typo with HomeKitCameraActive
+const HAPUUID kHAPCharacteristicType_ManuallyDisabled =
+        HAPUUIDCreateAppleDefined(0x21B); // TODO - typo with HomeKitCameraActive
 
 const HAPUUID kHAPCharacteristicType_PeriodicSnapshotsActive = HAPUUIDCreateAppleDefined(0x225);
 

@@ -3437,7 +3437,8 @@ HAP_ENUM_BEGIN(uint8_t, HAPCharacteristicValue_RecordingAudioActive) {
  *      Section 9.92 Setup Endpoints
  */
 /**@{*/
-#define kHAPCharacteristicDebugDescription_SupportedCameraRecordingConfiguration "supported-camera-recording-configuration"
+#define kHAPCharacteristicDebugDescription_SupportedCameraRecordingConfiguration \
+    "supported-camera-recording-configuration"
 extern const HAPUUID kHAPCharacteristicType_SupportedCameraRecordingConfiguration;
 /**@}*/
 
@@ -3452,7 +3453,8 @@ extern const HAPUUID kHAPCharacteristicType_SupportedCameraRecordingConfiguratio
  *      Section 9.92 Setup Endpoints
  */
 /**@{*/
-#define kHAPCharacteristicDebugDescription_SupportedVideoRecordingConfiguration "supported-video-recording-configuration"
+#define kHAPCharacteristicDebugDescription_SupportedVideoRecordingConfiguration \
+    "supported-video-recording-configuration"
 extern const HAPUUID kHAPCharacteristicType_SupportedVideoRecordingConfiguration;
 /**@}*/
 
@@ -3467,7 +3469,8 @@ extern const HAPUUID kHAPCharacteristicType_SupportedVideoRecordingConfiguration
  *      Section 9.92 Setup Endpoints
  */
 /**@{*/
-#define kHAPCharacteristicDebugDescription_SupportedAudioRecordingConfiguration "supported-audio-recording-configuration"
+#define kHAPCharacteristicDebugDescription_SupportedAudioRecordingConfiguration \
+    "supported-audio-recording-configuration"
 extern const HAPUUID kHAPCharacteristicType_SupportedAudioRecordingConfiguration;
 /**@}*/
 
@@ -3482,7 +3485,8 @@ extern const HAPUUID kHAPCharacteristicType_SupportedAudioRecordingConfiguration
  *      Section 9.92 Setup Endpoints
  */
 /**@{*/
-#define kHAPCharacteristicDebugDescription_SelectedCameraRecordingConfiguration "selected-camera-recording-configuration"
+#define kHAPCharacteristicDebugDescription_SelectedCameraRecordingConfiguration \
+    "selected-camera-recording-configuration"
 extern const HAPUUID kHAPCharacteristicType_SelectedCameraRecordingConfiguration;
 /**@}*/
 
@@ -3512,7 +3516,8 @@ extern const HAPUUID kHAPCharacteristicType_ThirdPartyCameraActive;
  *      Section 9.92 Setup Endpoints
  */
 /**@{*/
-#define kHAPCharacteristicDebugDescription_SupportedDataStreamTransportConfiguration "supported-data-stream-transport-configuration"
+#define kHAPCharacteristicDebugDescription_SupportedDataStreamTransportConfiguration \
+    "supported-data-stream-transport-configuration"
 extern const HAPUUID kHAPCharacteristicType_SupportedDataStreamTransportConfiguration;
 /**@}*/
 

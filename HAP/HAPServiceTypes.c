@@ -95,4 +95,3 @@ const HAPUUID kHAPServiceType_CameraOperatingMode = HAPUUIDCreateAppleDefined(0x
 const HAPUUID kHAPServiceType_CameraRecordingManagement = HAPUUIDCreateAppleDefined(0x204);
 
 const HAPUUID kHAPServiceType_DataStreamTransportManagement = HAPUUIDCreateAppleDefined(0x129);
-
