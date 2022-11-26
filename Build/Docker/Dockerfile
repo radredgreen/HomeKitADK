@@ -1,14 +1,9 @@
 # Build stage
-# FROM ubuntu:18.04
-FROM debian:10.13
+FROM ubuntu:18.04
 ARG USER=vscode
 RUN echo ========== Install dependencies ========== \
   && apt-get update && apt-get install -y \
     clang \
-    ffmpeg \
-    libavformat-dev \
-    libavcodec-dev \
-    libavutil-dev \
     gdb \
     git \
     libavahi-compat-libdnssd-dev \
