@@ -10,6 +10,7 @@
 
 #include "util_base64.h"
 #include "util_json_reader.h"
+#include "../Applications/Camera/snapshot.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -604,7 +605,7 @@ static void post_resource(HAPIPSessionDescriptor* session) {
             bytes, &session->inboundBuffer.data[session->httpReaderPosition], session->httpContentLength.value);
     HAPError err;
     size_t i, j, k, n;
-    unsigned int image_width, image_height, x;
+    unsigned int width, height, x;
     struct util_json_reader json_reader;
     util_json_reader_init(&json_reader);
     size_t numBytes = sizeof(bytes);
@@ -650,7 +651,7 @@ static void post_resource(HAPIPSessionDescriptor* session) {
                 // See HomeKit Accessory Protocol Specification R14
                 // Table 6-3 Properties of Characteristic Objects in JSON
                 if ((n == k - i) && (x <= 4096)) {
-                    image_width = x;
+                    width = x;
                     hasImageWidth = true;
                 } else {
                     HAPLogError(&logObject, "Invalid Image Width requested.");
@@ -674,7 +675,7 @@ static void post_resource(HAPIPSessionDescriptor* session) {
                 // See HomeKit Accessory Protocol Specification R14
                 // Table 6-3 Properties of Characteristic Objects in JSON
                 if (n == k - i) {
-                    image_height = x;
+                    height = x;
                     hasImageHeight = true;
                 } else {
                     HAPLogError(&logObject, &bytes[i], k - i, "Invalid Height requested.");
@@ -711,30 +712,35 @@ static void post_resource(HAPIPSessionDescriptor* session) {
     if (!hasImageWidth || !hasImageHeight) {
         HAPLogError(&logObject, "Missing Image dimension.");
     }
-    HAPLogInfo(&logObject, "Requested Image Width: %d", image_width);
-    HAPLogInfo(&logObject, "Requested Image Height: %d", image_height);
+    HAPLogDebug(&logObject, "Requested Image Dimensions: %dx%d", width, height);
+// TODO - eliminate the buffer, and just pass outbound buffer to GetSnapshot
+    uint8_t* imgBuf = malloc(session->outboundBuffer.limit - session->outboundBuffer.position);
+    u_int64_t imgBufSize = session->outboundBuffer.limit - session->outboundBuffer.position;
+    GetSnapshot(&imgBufSize, imgBuf, width, height);
+    HAPLogDebug(&logObject, "Image Buffer Size: %lu", imgBufSize);
 
-    struct stat fileStats;
-    char* fileName = ".vscode/output_half.jpg";
-    int fd;
-    fd = open(fileName, O_RDONLY);
-    stat(fileName, &fileStats);
-    char jpegFile[fileStats.st_size];
-    read(fd, jpegFile, fileStats.st_size);
-    close(fd);
+    // TODO - ?expand HAPIP+ByteBuffer.c and move this stuff there
+    if ((imgBufSize + session->outboundBuffer.position) < session->outboundBuffer.capacity) {
+        err = HAPIPByteBufferAppendStringWithFormat(
+                &session->outboundBuffer,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: image/jpeg\r\n"
+                "Content-Length: %lu\r\n\r\n",
+                (unsigned long) imgBufSize);
+        HAPRawBufferCopyBytes(&session->outboundBuffer.data[session->outboundBuffer.position], imgBuf, imgBufSize);
+        session->outboundBuffer.position += imgBufSize;
+    } else {
+        err = HAPIPByteBufferAppendStringWithFormat(
+                &session->outboundBuffer, "HTTP/1.1 500 Internal Server Error\r\n\r\n");
+        HAPIPByteBufferFlip(&session->outboundBuffer);
+        HAPLogError(&logObject, "Compressed image buffer larger than outbound buffer limit.");
+    }
+    HAPLogDebug(&logObject, "Buffer capacity: %lu", session->outboundBuffer.capacity);
+    HAPLogDebug(&logObject, "Buffer position: %lu", session->outboundBuffer.position);
+    HAPLogDebug(&logObject, "Buffer limit: %lu", session->outboundBuffer.limit);
+    HAPLogDebug(&logObject, "Image buffer size: %lu", (unsigned long) imgBufSize);
 
-    err = HAPIPByteBufferAppendStringWithFormat(
-            &session->outboundBuffer,
-            "HTTP/1.1 200 OK\r\n"
-            "Content-Type: image/jpeg\r\n"
-            "Content-Length: %lu\r\n\r\n",
-            (unsigned long) fileStats.st_size);
-
-    // expand HAPIP+ByteBuffer.c and move this stuff there
-
-    HAPRawBufferCopyBytes(&session->outboundBuffer.data[session->outboundBuffer.position], jpegFile, sizeof(jpegFile));
-    session->outboundBuffer.position += sizeof(jpegFile);
-
+    free(imgBuf);
     HAPLogInfo(&logObject, "Successful %s.\n\n", __func__);
 
     /*

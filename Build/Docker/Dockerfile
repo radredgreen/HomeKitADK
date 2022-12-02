@@ -14,6 +14,7 @@ RUN echo ========== Install dependencies ========== \
     unzip \
     wget \
     sudo \
+    libturbojpeg0-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 RUN useradd -m -s /bin/bash $USER \
