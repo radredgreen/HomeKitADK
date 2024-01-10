@@ -8,6 +8,9 @@
 #include <linux/random.h>
 #include <syscall.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "HAPPlatform.h"
 
@@ -24,47 +27,45 @@
 
 static const HAPLogObject logObject = { .subsystem = kHAPPlatform_LogSubsystem, .category = "RandomNumber" };
 
+#define GRND_RANDOM 0x1
+#define GRND_NONBLOCK 0x2
+
 void HAPPlatformRandomNumberFill(void* bytes, size_t numBytes) {
     HAPPrecondition(bytes);
 
-    // Read random data.
-    for (int i = 0; i < 5; i++) {
-        size_t o = 0;
-        while (o < numBytes) {
-            size_t c = numBytes - o;
+    // Flags to call getrandom.
+    const int getrandomFlags = GRND_NONBLOCK; // Use the urandom source and do not block.
+    
+    // With glibc >= 2.25 it is possible to call getrandom() directly.
+    // Source: man page of getrandom(2).
+    // n = syscall(SYS_getrandom, &((uint8_t*) bytes)[o], c, getrandomFlags);
 
-            // Using getrandom() to read small buffers (<= 256 bytes) from the urandom source is the preferred mode of
-            // usage.
-            // Source: man page of getrandom(2).
-            if (c > 256) {
-                c = 256;
-            }
+    // wyrecam: Kernel 3.10.14 doesn't support getrandom
 
-            ssize_t n;
-            do {
-                // Flags to call getrandom.
-                const int getrandomFlags = GRND_NONBLOCK; // Use the urandom source and do not block.
+    int fd;
+    ssize_t result = 0;
+    /* select right source */
+    //char* source = getrandomFlags & GRND_RANDOM ? "/dev/random" : "/dev/urandom";
+    char* source = "/dev/urandom";
 
-                // With glibc >= 2.25 it is possible to call getrandom() directly.
-                // Source: man page of getrandom(2).
-                n = syscall(SYS_getrandom, &((uint8_t*) bytes)[o], c, getrandomFlags);
-            } while ((n == -1) && (errno == EINTR));
+    fd = open(source, O_RDONLY | O_CLOEXEC);
+    if (fd < 0){
+        int _errno = errno;
+        HAPLogError(&logObject, "Could not open /dev/urandom: %d.",_errno);
+        HAPFatalError();
+    }
 
-            if (n < 0) {
-                int _errno = errno;
-                HAPAssert(n == -1);
-                HAPLogError(&logObject, "Read from getrandom failed: %d.", _errno);
-                HAPFatalError();
-            }
+    while (result < numBytes) {
+        result += read(fd, &((uint8_t*) bytes)[result], numBytes - result);
+        HAPLogDebug(&logObject, "Read %d bytes from /dev/urandom.", result);
+    }
+    
+    close(fd);
 
-            HAPAssert((size_t) n <= c);
-            o += (size_t) n;
-        }
 
-        // Verify random data.
-        if (numBytes < 128 / 8 || !HAPRawBufferIsZero(bytes, numBytes)) {
-            return;
-        }
+    // Verify random data.
+    if (numBytes < 128 / 8 || !HAPRawBufferIsZero(bytes, numBytes)) {
+        return;
     }
     HAPLogError(&logObject, "getrandom produced only zeros.");
     HAPFatalError();

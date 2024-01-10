@@ -10,7 +10,7 @@
 
 #include "util_base64.h"
 #include "util_json_reader.h"
-#include "../Applications/Camera/snapshot.h"
+#include "Camera/snapshot.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <x86_64-linux-gnu/bits/fcntl-linux.h>
+//#include <x86_64-linux-gnu/bits/fcntl-linux.h>
 
 static const HAPLogObject logObject = { .subsystem = kHAP_LogSubsystem, .category = "IPAccessoryServer" };
 
@@ -713,10 +713,15 @@ static void post_resource(HAPIPSessionDescriptor* session) {
         HAPLogError(&logObject, "Missing Image dimension.");
     }
     HAPLogDebug(&logObject, "Requested Image Dimensions: %dx%d", width, height);
-// TODO - eliminate the buffer, and just pass outbound buffer to GetSnapshot
+    // TODO - eliminate the buffer, and just pass outbound buffer to GetSnapshot
     uint8_t* imgBuf = malloc(session->outboundBuffer.limit - session->outboundBuffer.position);
-    u_int64_t imgBufSize = session->outboundBuffer.limit - session->outboundBuffer.position;
-    GetSnapshot(&imgBufSize, imgBuf, width, height);
+    HAPAssert( imgBuf != NULL);
+    // imgBufSize passes the max size to tjCompress which will not realloc if the result doesn't fit
+    // imgBufSize also contains the resulting size
+    unsigned long imgBufSize = session->outboundBuffer.limit - session->outboundBuffer.position;
+    if(getSnapshot(&imgBufSize, imgBuf, width, height) != 0){
+        HAPLogError(&logObject, "getSnapshot Failed.");
+    }
     HAPLogDebug(&logObject, "Image Buffer Size: %lu", imgBufSize);
 
     // TODO - ?expand HAPIP+ByteBuffer.c and move this stuff there
