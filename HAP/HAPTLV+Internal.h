@@ -1081,7 +1081,7 @@ HAP_RESULT_USE_CHECK
 bool HAPTLVFormatIsValid(const HAPTLVFormat* format);
 
 /** Maximum supported length of a TLV value's log. */
-#define kHAPTLVValue_MaxLogBytes ((size_t) 1023)
+#define kHAPTLVValue_MaxLogBytes ((size_t) 4096)
 
 /** Maximum supported length of a value's description. */
 #define kHAPTLVValue_MaxDescriptionBytes ((size_t) 255)
