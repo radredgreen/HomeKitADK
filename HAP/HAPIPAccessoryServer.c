@@ -746,7 +746,7 @@ static void post_resource(HAPIPSessionDescriptor* session) {
     HAPLogDebug(&logObject, "Image buffer size: %lu", (unsigned long) imgBufSize);
 
     free(imgBuf);
-    HAPLogInfo(&logObject, "Successful %s.\n\n", __func__);
+    HAPLogInfo(&logObject, "Successful %s.", __func__);
 
     /*
         char httpHeader[70];
@@ -3118,7 +3118,7 @@ static void handle_http(HAPIPSessionDescriptor* session) {
             HAPLogBufferDebug(
                     &logObject,
                     session->outboundBuffer.data,
-                    session->outboundBuffer.limit,
+                    session->outboundBuffer.limit < 512 ? session->outboundBuffer.limit : 512,
                     "session:%p:<",
                     (const void*) session);
 
