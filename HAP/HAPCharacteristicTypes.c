@@ -276,14 +276,13 @@ const HAPUUID kHAPCharacteristicType_EventSnapshotsActive = HAPUUIDCreateAppleDe
 
 const HAPUUID kHAPCharacteristicType_HomeKitCameraActive = HAPUUIDCreateAppleDefined(0x21B);
 
-const HAPUUID kHAPCharacteristicType_ManuallyDisabled =
-        HAPUUIDCreateAppleDefined(0x21B); // TODO - typo with HomeKitCameraActive
+const HAPUUID kHAPCharacteristicType_ManuallyDisabled = HAPUUIDCreateAppleDefined(0x227);
 
 const HAPUUID kHAPCharacteristicType_PeriodicSnapshotsActive = HAPUUIDCreateAppleDefined(0x225);
 
 const HAPUUID kHAPCharacteristicType_RecordingAudioActive = HAPUUIDCreateAppleDefined(0x226);
 
-const HAPUUID kHAPCharacteristicType_SupportedCameraRecordingConfiguration = HAPUUIDCreateAppleDefined(0x204);
+const HAPUUID kHAPCharacteristicType_SupportedCameraRecordingConfiguration = HAPUUIDCreateAppleDefined(0x205);
 
 const HAPUUID kHAPCharacteristicType_SupportedVideoRecordingConfiguration = HAPUUIDCreateAppleDefined(0x206);
 
